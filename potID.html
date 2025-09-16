@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Finds Identifier</title>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+</head>
+<body>
+  <h1>Identify Archaeological Find</h1>
+  <input type="file" accept="image/*" onchange="predict(this)">
+  <p id="result">Upload an image to identify</p>
+
+  <script>
+    const URL = "https://teachablemachine.withgoogle.com/models/wCePivtRj/";
+    let model, maxPredictions;
+
+    async function init() {
+      const modelURL = URL + "model.json";
+      const metadataURL = URL + "metadata.json";
+      model = await tmImage.load(modelURL, metadataURL);
+      maxPredictions = model.getTotalClasses();
+    }
+
+    async function predict(input) {
+      const image = document.createElement("img");
+      image.src = URL.createObjectURL(input.files[0]);
+      await image.decode();
+      const prediction = await model.predict(image);
+      let best = prediction.reduce((a, b) => a.probability > b.probability ? a : b);
+      document.getElementById("result").innerText = `Prediction: ${best.className}`;
+    }
+
+    init();
+  </script>
+</body>
+</html>
